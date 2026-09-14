@@ -110,6 +110,7 @@ const MODELS = {
   'zero-shot-classification': 'Xenova/distilbert-base-uncased-mnli',
   'sentiment': 'Xenova/distilbert-base-uncased-finetuned-sst-2-english',
   'toxicity': 'Xenova/toxic-bert',
+  'emotion': 'MicahB/roberta-base-go_emotions',
 };
 
 const TASKS = {
@@ -120,6 +121,7 @@ const TASKS = {
   'zero-shot-classification': 'zero-shot-classification',
   'sentiment': 'text-classification',
   'toxicity': 'text-classification',
+  'emotion': 'text-classification',
 };
 
 async function download(name, task) {

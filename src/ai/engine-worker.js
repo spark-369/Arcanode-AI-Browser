@@ -7,7 +7,7 @@ let engine;
 let normalizeEngineError;
 try {
   engine = require('./engine/index.js');
-  normalizeEngineError = require('./engine/errors.js');
+  ({ normalizeEngineError } = require('./engine/errors.js'));
 } catch (err) {
   if (process.send) {
     process.send({ type: 'error', error: err?.message || String(err) });

@@ -1,9 +1,17 @@
-// BrowserView manager (main process). Each tab is backed by a persistent
-// BrowserView created here (not a <webview> in the renderer). Only the active
-// view is attached to the window at a time; the rest keep their state alive
-// off-screen. The renderer drives everything via IPC and gets state via events.
+// View manager (main process). Each tab is backed by a persistent WebContentsView
+// created here (not a <webview> in the renderer). Only the active view is
+// attached to the window at a time; the rest keep their state alive off-screen.
+// The renderer drives everything via IPC and gets state via events.
+//
+// NOTE: We intentionally use WebContentsView (the modern replacement for the
+// deprecated BrowserView). BrowserView has a long-standing bug where a view that
+// was removed via removeBrowserView() and later re-added via addBrowserView()
+// renders blank, which made switching tabs A -> B -> A leave both pages blank.
+// WebContentsView is added/removed from the host window's contentView via
+// addChildView/removeChildView and reliably re-attaches, so it fixes the blank
+// tab-switching bug.
 
-const { BrowserWindow, BrowserView } = require('electron');
+const { BrowserWindow, WebContentsView } = require('electron');
 
 const USER_AGENT =
   'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36';
@@ -122,41 +130,49 @@ function applyBounds(entry) {
   entry.view.setBounds(effectiveBounds());
 }
 
-// Attach a view to the window (only when active + not errored). NOTE: call
-// addBrowserView on the actual window (from getFocusedWindow/allWindows), NOT on
-// BrowserWindow.fromBrowserView(view) — the latter is null for a never-attached
-// view, so it would throw and leave a blank shell.
+// Show a view (only when active + not errored). NOTE: call addChildView on the
+// actual window's contentView (from getFocusedWindow/allWindows), NOT on
+// BrowserWindow.fromWebContents(view.webContents) — the latter is null for a
+// never-attached view, so it would throw.
+//
+// Views are kept PERMANENTLY attached to the window's contentView: we never
+// remove them, we only toggle View.setVisible() to show/hide. Repeatedly
+// removing and re-adding the same WebContentsView on Linux/ozone is unreliable
+// (blank paint after re-attach), so we use the setVisible approach which the
+// Chromium embedding reliably repaints.
 function showView(entry) {
   if (!entry) return;
   if (entry.hidden) return;
   const win = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
   if (!win || win.isDestroyed()) return;
   try {
-    if (BrowserWindow.fromBrowserView(entry.view) !== win) {
-      win.addBrowserView(entry.view);
-    }
+    // If the view is already a child of contentView (it always is — we attach
+    // once at creation), addChildView reorders it to the top so this visible
+    // view paints above the shell and any other (hidden) views.
+    win.contentView.addChildView(entry.view);
     applyBounds(entry);
-  } catch {
-    /* already attached */
+    entry.view.setVisible(true);
+  } catch (err) {
+    console.error('[views] showView: addChildView failed:', err.message);
   }
 }
 
-// Detach a view from the window so the renderer DOM (e.g. the error overlay)
-// becomes visible behind where the native view was.
+// Hide a view so the renderer DOM (e.g. the error overlay, or the next active
+// view) is what the user sees instead. The view stays attached to the window and
+// its state stays alive; we only stop painting it.
 function hideView(entry) {
   if (!entry) return;
-  const win = BrowserWindow.fromBrowserView(entry.view);
-  if (win && !win.isDestroyed()) {
-    try {
-      win.removeBrowserView(entry.view);
-    } catch {
-      /* not attached */
-    }
+  try {
+    entry.view.setVisible(false);
+  } catch (err) {
+    console.error('[views] hideView: setVisible failed:', err.message);
   }
+  // Mark as hidden so showView knows to re-show on the next activate.
+  entry.hidden = true;
 }
 
 function createView(mainWindow, tabId, url) {
-  const view = new BrowserView({
+  const view = new WebContentsView({
     webPreferences: {
       partition: 'persist:ailocal',
       nodeIntegration: false,
@@ -202,7 +218,20 @@ function createView(mainWindow, tabId, url) {
     loadedSeq: 0,
   };
 
-  const entry = { view, state, hidden: false };
+  const entry = { view, state, hidden: true };
+
+  // Attach the view to the window's contentView ONCE when it is created. From
+  // here on it stays attached forever (tab-switching only toggles setVisible),
+  // which avoids the unreliable remove/re-add paint behaviour on Linux/ozone.
+  // Start it hidden so it never flashes over the shell while it loads.
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try {
+      mainWindow.contentView.addChildView(entry.view);
+      entry.view.setVisible(false);
+    } catch (err) {
+      console.error('[views] createView: addChildView failed:', err.message);
+    }
+  }
 
   const syncHistory = () => {
     try {
@@ -364,12 +393,12 @@ function createView(mainWindow, tabId, url) {
 function destroyView(tabId) {
    const entry = views.get(tabId);
    if (!entry) return;
-   const win = BrowserWindow.fromBrowserView(entry.view)
+   const win = BrowserWindow.fromWebContents(entry.view.webContents)
      || BrowserWindow.getFocusedWindow()
      || BrowserWindow.getAllWindows()[0];
    if (win && !win.isDestroyed()) {
      try {
-       win.removeBrowserView(entry.view);
+       win.contentView.removeChildView(entry.view);
      } catch {
        /* not attached */
      }
@@ -387,20 +416,20 @@ function setActiveView(tabId) {
     const next = views.get(tabId);
     if (!next) return;
 
+   console.log(`[views] setActiveView: switching to tab ${tabId}, prev active=${activeTabId}`);
+
    // Detach the previously active view (only one can be shown at a time).
    if (activeTabId && activeTabId !== tabId) {
      const prev = views.get(activeTabId);
      if (prev) hideView(prev);
    }
 
-   activeTabId = tabId;
-    // Only show the view if it is not hidden.
-    if (next.hidden) {
-      hideView(next);
-    } else {
-      showView(next);
-      next.view.webContents.focus();
-    }
+    activeTabId = tabId;
+    // Un-hide the view (it may have been hidden by a prior hideView call) and
+    // attach it to the window.
+    next.hidden = false;
+    showView(next);
+    next.view.webContents.focus();
   }
 
 function setPaneBounds(rect) {

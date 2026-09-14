@@ -10,13 +10,13 @@ The application is built with Electron and is organized into three main runtime 
 - A renderer shell that provides the tab strip, toolbar, sidebar, settings, and history UI.
 - A separate Node.js engine worker that loads Transformers.js models and performs inference.
 
-The browser opens ordinary web pages in native `BrowserView` instances. The AI sidebar analyzes readable text from the active page or the user's current text selection. The browser does not block web traffic: its privacy guarantee applies to AI inference, not to the websites a user chooses to visit.
+The browser opens ordinary web pages in native `WebContentsView` instances. The AI sidebar analyzes readable text from the active page or the user's current text selection. The browser does not block web traffic: its privacy guarantee applies to AI inference, not to the websites a user chooses to visit.
 
 ## Key Features
 
 ### Browser
 
-- Multiple tabs backed by persistent native Electron `BrowserView` instances.
+- Multiple tabs backed by persistent native Electron `WebContentsView` instances.
 - URL omnibox with DuckDuckGo search fallback.
 - Back, forward, reload, stop, and home controls.
 - Loading progress indicator and page-load error overlay.
@@ -117,13 +117,17 @@ ai-local-browser/
 The main process is responsible for:
 
 - Creating the application window.
-- Managing persistent browser tabs and their `BrowserView` instances.
+- Managing persistent browser tabs and their `WebContentsView` instances.
 - Performing navigation and page-state tracking.
 - Fetching favicons for the shell UI.
 - Persisting settings and window state.
 - Handling renderer IPC requests.
 - Building the application menu.
 - Starting and stopping the AI worker process.
+
+#### View manager
+
+`src/main/views.js` manages per-tab `WebContentsView` instances (the modern replacement for the deprecated `BrowserView`). Only the active view is painted at a time; inactive views keep their page state alive off-screen. Views are kept permanently attached to the window's `contentView` and simply toggled with `setVisible()`, which avoids a long-standing `BrowserView` bug where repeatedly removing and re-adding a view renders it blank when switching tabs. The renderer drives everything over IPC and receives state changes as events.
 
 ### Renderer process
 
@@ -141,7 +145,7 @@ The renderer handles:
 
 ### AI engine worker
 
-`src/ai/engine-host.js` forks `src/ai/engine-worker.js`. The worker loads model pipelines and runs inference using the native ONNX backend. This isolates native model-runtime failures from the browser UI.
+`src/ai/engine-host.js` forks `src/ai/engine-worker.js` as a separate OS child process using `child_process.fork`. The worker loads model pipelines and runs inference using the native ONNX backend. Because it runs in its own process, a crash, segfault, or out-of-memory failure in the native model runtime can never take down the browser window — only the worker dies, and the host reports the failure gracefully. In a packaged build the worker is resolved from `app.asar.unpacked`, with its `node_modules` added to `NODE_PATH` so the native ONNX runtime resolves at runtime.
 
 The engine supports:
 
@@ -213,13 +217,7 @@ npm start
 
 `npm start` launches Electron with `--ozone-platform=x11`.
 
-For a development run with detached DevTools:
-
-```bash
-OPEN_DEVTOOLS=1 npm start
-```
-
-DevTools can also be enabled by setting:
+For a development run with detached DevTools (works when `app.isPackaged` is false):
 
 ```bash
 OPEN_DEVTOOLS=1 npm start
@@ -243,7 +241,18 @@ To download the configured model set before using the application offline:
 npm run download-models
 ```
 
-The downloader uses the same Transformers.js configuration and cache layout as the application. It downloads the configured summarization, question-answering, embedding, NER, zero-shot, sentiment, and toxicity models with quantized weights enabled.
+The downloader uses the same Transformers.js configuration and cache layout as the application. It pre-seeds the full configured model set with quantized weights enabled:
+
+| Model | Covers |
+| --- | --- |
+| `Xenova/distilbart-cnn-6-6` | Summarization |
+| `Xenova/distilbert-base-cased-distilled-squad` | Question answering |
+| `Xenova/all-MiniLM-L6-v2` | Text embeddings, search, keywords, clustering, deduplication, and other embedding-based tools |
+| `Xenova/bert-base-NER` | Named-entity recognition (people, places, organizations, acronyms) |
+| `Xenova/distilbert-base-uncased-mnli` | Zero-shot classification, topic, intent, language, formality, contradiction, and natural-language inference |
+| `Xenova/distilbert-base-uncased-finetuned-sst-2-english` | Sentiment classification |
+| `Xenova/toxic-bert` | Toxicity classification |
+| `MicahB/roberta-base-go_emotions` | Emotion / tone classification |
 
 The model cache can also be cleared from the application menu through **AI > Clear Model Cache...**. Clearing it requires the models to be downloaded again when their tools are next used.
 
@@ -282,7 +291,7 @@ If the page text exceeds a model's input limit, the sidebar shows a centered war
 | --- | --- |
 | `npm start` | Launch the application with X11 Ozone flags |
 | `npm run download-models` | Pre-download configured model weights |
-| `npm run lint` | Lint `src` and `scripts` JavaScript |
+| `npm run lint` | Run the linter (currently a placeholder; no linter is configured) |
 | `npm run package` | Create an unpackaged Electron application |
 | `npm run make` | Create platform distributables |
 | `npm run publish` | Build and publish through configured Forge publishing |
@@ -294,9 +303,8 @@ If the page text exceeds a model's input limit, the sidebar shows a centered war
 Configured makers include:
 
 - Squirrel installer for Windows.
-- ZIP archives for macOS and Linux.
-- DEB packages for Linux.
-- RPM packages for Linux.
+- ZIP archive for macOS.
+- DEB package for Linux (with a desktop icon).
 
 The Linux executable is named `ai-local-browser`; other platforms use the product name `Arcanode AI Browser`.
 
