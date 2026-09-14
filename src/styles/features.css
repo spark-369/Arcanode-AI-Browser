@@ -1,0 +1,271 @@
+/* Footer progress bar, toasts, and feature-specific result styles
+   (search, tone, new feature panels). */
+
+.progress {
+  height: 4px;
+  background: var(--bg-0);
+  border-radius: var(--r-full);
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--accent), var(--violet));
+  transition: width 0.25s var(--ease);
+}
+
+/* Unknown duration: sweep instead of showing a fake percentage. */
+.progress.indeterminate .progress-bar {
+  width: 35% !important;
+  animation: sweep 1.15s ease-in-out infinite;
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(340%); }
+}
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+  min-height: 16px;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: var(--fg-dim);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+  padding: 3px 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  background: var(--bg-3);
+  color: var(--fg-mid);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.14s var(--ease);
+}
+.cancel-btn:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.cancel-btn .ic {
+  width: 10px;
+  height: 10px;
+}
+
+/* Toasts */
+
+.toasts {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.toast {
+  padding: 9px 16px;
+  border-radius: var(--r-full);
+  background: var(--bg-4);
+  border: 1px solid var(--line-strong);
+  color: var(--fg);
+  font-size: 12.5px;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.22s var(--ease);
+}
+.toast.out {
+  animation: toastOut 0.2s var(--ease) forwards;
+}
+.toast.error {
+  border-color: rgba(255, 107, 125, 0.4);
+  color: var(--danger);
+}
+.toast.success {
+  border-color: rgba(61, 220, 151, 0.4);
+  color: var(--success);
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes toastOut {
+  to { opacity: 0; transform: translateY(6px) scale(0.97); }
+}
+
+/* Respect the OS "reduce motion" preference. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Search (semantic, embedding-driven) */
+
+.search-item {
+  padding: 12px 13px;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  animation: fadeUp 0.18s var(--ease);
+  transition: border-color 0.15s var(--ease), transform 0.12s var(--ease);
+}
+.search-item:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+
+.search-text {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--fg);
+}
+
+.search-meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-meter-track {
+  flex: 1;
+  height: 5px;
+  border-radius: var(--r-full);
+  background: var(--bg-4);
+  overflow: hidden;
+}
+
+.search-meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--theme-accent, var(--accent)), var(--violet));
+  transition: width 0.45s var(--ease);
+}
+
+.search-meter-val {
+  width: 36px;
+  flex: none;
+  text-align: right;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-dim);
+}
+
+/* Tone (text classification) */
+
+.tone-results {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.tone-empty {
+  margin: 0;
+  color: var(--fg-dim);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.tone-item {
+  padding: 12px 13px;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  animation: fadeUp 0.18s var(--ease);
+  transition: border-color 0.15s var(--ease), transform 0.12s var(--ease);
+}
+.tone-item:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+
+.tone-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tone-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.tone-val {
+  width: 44px;
+  flex: none;
+  text-align: right;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-mid);
+}
+
+.tone-track {
+  flex: 1;
+  height: 6px;
+  border-radius: var(--r-full);
+  background: var(--bg-4);
+  overflow: hidden;
+}
+
+.tone-fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-full);
+  background: linear-gradient(90deg, var(--theme-accent, var(--accent)), var(--violet));
+  transition: width 0.45s var(--ease);
+}
+
+/* New feature panels (Insights / Structure / Classify) */
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.mini-grid .btn.ghost {
+  height: 34px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0 10px;
+}
+
+#related-input,
+#zshot-input,
+#claim-input {
+  margin-top: 2px;
+}

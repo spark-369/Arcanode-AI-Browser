@@ -1,0 +1,31 @@
+/* Layout: browser pane, resizer. */
+
+.layout {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.browser-pane {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  background: var(--bg-0);
+}
+
+/* The page is rendered by a native BrowserView positioned over this pane by
+   the main process. */
+
+/* Resizer */
+
+.resizer {
+  width: 4px;
+  flex: none;
+  cursor: col-resize;
+  background: var(--line-soft);
+  transition: background 0.15s var(--ease);
+}
+.resizer:hover,
+.resizer.dragging {
+  background: var(--accent);
+}

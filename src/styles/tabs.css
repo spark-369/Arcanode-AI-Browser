@@ -1,0 +1,154 @@
+/* Tab strip */
+
+.tabstrip {
+  height: var(--tabstrip-h);
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 8px;
+  background: var(--bg-0);
+  border-bottom: 1px solid var(--line-soft);
+  user-select: none;
+  /* Lets the window be dragged by the empty strip area. */
+  -webkit-app-region: drag;
+}
+
+.tabstrip-brand {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: var(--tabstrip-h);
+  -webkit-app-region: no-drag;
+}
+
+.tabstrip-tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-app-region: no-drag;
+}
+
+.tabstrip-spacer {
+  flex: 1;
+  height: 100%;
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 8px 0 11px;
+  min-width: 96px;
+  max-width: 216px;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+  background: transparent;
+  border: none;
+  color: var(--fg-dim);
+  cursor: default;
+  font-size: 12.5px;
+  transition: background 0.14s var(--ease), color 0.14s var(--ease);
+  position: relative;
+}
+
+.tab-item:hover {
+  background: var(--bg-2);
+  color: var(--fg-mid);
+}
+
+.tab-item.active {
+  background: var(--bg-2);
+  color: var(--fg);
+}
+
+/* Accent underline on the active tab, bleeding into the toolbar below. */
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--violet));
+}
+
+.tab-favicon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 3px;
+  object-fit: contain;
+  background: var(--bg-4);
+}
+
+.tab-title {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab-spinner {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border: 1.6px solid var(--line-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.tab-close {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border: none;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--fg-faint);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s var(--ease), background 0.12s var(--ease);
+}
+.tab-close .ic {
+  width: 11px;
+  height: 11px;
+  stroke-width: 2.4;
+}
+.tab-item:hover .tab-close,
+.tab-item.active .tab-close {
+  opacity: 1;
+}
+.tab-close:hover {
+  background: var(--bg-hover);
+  color: var(--fg);
+}
+
+.tabstrip-new {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 1px;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--fg-dim);
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+  transition: background 0.14s var(--ease), color 0.14s var(--ease);
+}
+.tabstrip-new:hover {
+  background: var(--bg-3);
+  color: var(--fg);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

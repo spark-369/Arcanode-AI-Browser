@@ -1,0 +1,142 @@
+/* Base: design tokens, reset, scrollbars, focus, icons, app shell. */
+
+:root {
+  /* Surfaces, darkest -> lightest */
+  --bg-0: #08090d;
+  --bg-1: #0b0d12;
+  --bg-2: #11141b;
+  --bg-3: #161a23;
+  --bg-4: #1d222d;
+  --bg-hover: #232936;
+
+  /* Borders */
+  --line: #21262f;
+  --line-soft: #191d25;
+  --line-strong: #2e3542;
+
+  /* Text */
+  --fg: #e8ebf2;
+  --fg-mid: #a8b1c1;
+  --fg-dim: #6f7889;
+  --fg-faint: #4d5566;
+
+  /* Accents */
+  --accent: #6d7cff;
+  --accent-hi: #8b95ff;
+  --accent-lo: #4d5bd9;
+  --accent-hi-2: #a06cff;
+  --accent-glow: rgba(109, 124, 255, 0.35);
+  --violet: #a06cff;
+
+  --success: #3ddc97;
+  --ok: #3ddc97;
+  --warn: #f5b342;
+  --danger: #ff6b7d;
+
+  /* Geometry */
+  --r-sm: 6px;
+  --r-md: 9px;
+  --r-lg: 13px;
+  --r-full: 999px;
+
+  --tabstrip-h: 38px;
+  --toolbar-h: 50px;
+  --sidebar-w: 384px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.55);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-1);
+  color: var(--fg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent-glow);
+  color: #fff;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b313d;
+  border-radius: var(--r-full);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3a4250;
+  background-clip: content-box;
+}
+
+/* Focus: visible for keyboard users, never a stray ring on mouse clicks. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* Icons */
+
+.icon-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.ic {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ic.big {
+  width: 34px;
+  height: 34px;
+  stroke-width: 1.5;
+}
+.ic.accent {
+  color: var(--accent-hi);
+}
+.ic.brand {
+  width: 18px;
+  height: 18px;
+  color: var(--violet);
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--bg-1);
+}
