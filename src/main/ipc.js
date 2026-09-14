@@ -15,7 +15,7 @@ function registerIpc() {
    ipcMain.setMaxListeners(100);
   // --- App info / shell -----------------------------------------------------
   ipcMain.handle('get-app-info', () => ({
-    name: 'Aurora Browser',
+    name: 'Arcanode AI Browser',
     version: app.getVersion(),
     platform: process.platform,
     arch: os.arch(),

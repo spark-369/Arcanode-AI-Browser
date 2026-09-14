@@ -1,6 +1,6 @@
-# Aurora Browser
+# Arcanode AI Browser
 
-**Aurora Browser** is a privacy-focused desktop web browser with an on-device AI workspace. It combines a multi-tab browsing experience with local text analysis powered by Transformers.js and ONNX Runtime. Model inference runs in a dedicated child process, and model weights are cached locally for offline use after their first download.
+**Arcanode AI Browser** is a privacy-focused desktop web browser with an on-device AI workspace. It combines a multi-tab browsing experience with local text analysis powered by Transformers.js and ONNX Runtime. Model inference runs in a dedicated child process, and model weights are cached locally for offline use after their first download.
 
 ## Overview
 
@@ -233,9 +233,9 @@ The engine stores models in Electron's `userData/models` directory:
 
 | Platform | Default model cache |
 | --- | --- |
-| Linux | `~/.config/Aurora Browser/models` |
-| macOS | `~/Library/Application Support/Aurora Browser/models` |
-| Windows | `%APPDATA%\Aurora Browser\models` |
+| Linux | `~/.config/Arcanode AI Browser/models` |
+| macOS | `~/Library/Application Support/Arcanode AI Browser/models` |
+| Windows | `%APPDATA%\Arcanode AI Browser\models` |
 
 To download the configured model set before using the application offline:
 
@@ -298,7 +298,7 @@ Configured makers include:
 - DEB packages for Linux.
 - RPM packages for Linux.
 
-The Linux executable is named `ai-local-browser`; other platforms use the product name `Aurora Browser`.
+The Linux executable is named `ai-local-browser`; other platforms use the product name `Arcanode AI Browser`.
 
 ### Adding an AI feature
 

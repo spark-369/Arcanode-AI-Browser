@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * One-time model downloader for Aurora Browser.
+ * One-time model downloader for Arcanode AI Browser.
  *
  * Run this ONCE on a machine/network that can reach huggingface.co:
  *
@@ -13,9 +13,9 @@
  *
  * To pre-seed a different machine, copy the resulting `models/` folder into
  * that machine's userData directory:
- *   - Linux:   ~/.config/Aurora Browser/models
- *   - macOS:   ~/Library/Application Support/Aurora Browser/models
- *   - Windows: %APPDATA%\Aurora Browser\models
+ *   - Linux:   ~/.config/Arcanode AI Browser/models
+ *   - macOS:   ~/Library/Application Support/Arcanode AI Browser/models
+ *   - Windows: %APPDATA%\Arcanode AI Browser\models
  */
 
 const dns = require('node:dns');
@@ -82,7 +82,7 @@ const userDataDir = path.join(
       ? process.env.APPDATA || path.join(home, 'AppData', 'Roaming')
       : path.join(home, '.config')
 );
-let cacheDir = path.join(userDataDir, 'Aurora Browser', 'models');
+let cacheDir = path.join(userDataDir, 'Arcanode AI Browser', 'models');
 
 // Defensive: if the resolved cache dir does not already hold models but a
 // "collapsed" variant of the same path does (e.g. a doubled $HOME produced

@@ -106,12 +106,12 @@ function buildMenu(mainWindow) {
       label: '&Help',
       submenu: [
         {
-          label: 'About Aurora Browser',
+          label: 'About Arcanode AI Browser',
           click: () => {
             dialog.showMessageBox(mainWindow, {
               type: 'info',
-              title: 'About Aurora Browser',
-              message: `Aurora Browser ${app.getVersion()}`,
+              title: 'About Arcanode AI Browser',
+              message: `Arcanode AI Browser ${app.getVersion()}`,
               detail: [
                 'A privacy-first browser that runs lightweight AI models entirely on your machine.',
                 '',

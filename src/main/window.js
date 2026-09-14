@@ -26,7 +26,7 @@ const createWindow = () => {
     minWidth: 900,
     minHeight: 600,
     backgroundColor: "#0b0d12",
-    title: "Aurora Browser",
+    title: "Arcanode AI Browser",
     icon: path.resolve(__dirname, "../../assets/desktop_icon.png"),
     autoHideMenuBar: true,
     show: false,

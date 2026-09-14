@@ -1,4 +1,4 @@
-// Aurora Browser — main process entry point. Wires together the modules in
+// Arcanode AI Browser — main process entry point. Wires together the modules in
 // ./main (state, window, views, menu, ipc) and handles process-level concerns
 // (single-instance lock, Chromium flags, engine teardown, crash reporting).
 
