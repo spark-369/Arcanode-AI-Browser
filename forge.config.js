@@ -4,7 +4,7 @@ const path = require("path");
 
 module.exports = {
   packagerConfig: {
-    executableName: "ai-local-browser",
+    executableName: "arcanode-ai-browser",
     asar: {
       unpackDir: "{node_modules,src/ai}",
     },
