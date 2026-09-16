@@ -51,6 +51,7 @@ Most tools analyze the current text selection when one exists. Otherwise, they a
 - Transformers.js (`@xenova/transformers`)
 - ONNX Runtime through the native Transformers.js backend
 - Electron Forge for packaging
+- IndexedDB for on-device browsing history
 - Plain HTML, CSS, and browser-side ES modules
 
 ## Project Structure
@@ -255,6 +256,21 @@ The downloader uses the same Transformers.js configuration and cache layout as t
 | `MicahB/roberta-base-go_emotions` | Emotion / tone classification |
 
 The model cache can also be cleared from the application menu through **AI > Clear Model Cache...**. Clearing it requires the models to be downloaded again when their tools are next used.
+
+## IndexedDB Storage
+
+Browsing history is stored entirely on-device using the browser-native **IndexedDB** API. History is recorded and managed directly in the renderer process (see `src/renderer/history.js`) — nothing is sent to a network or through the main process.
+
+| Setting | Value |
+| --- | --- |
+| Database name | `ai-local-browser` |
+| Database version | `1` |
+| Object store | `history` (keyed by URL) |
+| Index | `visitedAt` (visit timestamp) |
+
+Each history record captures the page URL, title, favicon, and the timestamp of the most recent visit. Entries are deduplicated by URL (the newest visit is kept and sorted first), and the History panel supports filtering, reopening, deleting individual entries, and clearing all entries.
+
+Because the history lives in the renderer's IndexedDB, it is isolated to the on-device browsing session and can be cleared from the History panel without affecting settings or the model cache.
 
 ## Usage
 
