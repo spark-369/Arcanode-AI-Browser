@@ -358,4 +358,4 @@ Verify that native dependencies are unpacked by Electron Forge's auto-unpack plu
 
 ## License
 
-MIT. See `package.json` for project metadata and licensing information.
+JUST. See `package.json` for project metadata and licensing information.
